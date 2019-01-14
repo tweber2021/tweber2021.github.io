@@ -7,7 +7,7 @@ canvas.height = document.body.clientHeight;
 var ctx=canvas.getContext("2d");
 
 // Init. Variables
-const n = 10000;
+const n = 2000;
 const w = canvas.width;
 const h = canvas.height;
 var x = [];
