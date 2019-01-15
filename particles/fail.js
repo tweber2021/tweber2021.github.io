@@ -8,7 +8,7 @@ var ctx=canvas.getContext("2d");
 
 // Init. Variables
 // assumed: m=1
-const n = 1000;
+const n = 500;
 const w = canvas.width;
 const h = canvas.height;
 const G = 100; // Gravitational constant
