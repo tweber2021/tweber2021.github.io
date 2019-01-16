@@ -12,7 +12,7 @@ const n = 500;
 const w = canvas.width;
 const h = canvas.height;
 const Vmax = 8;
-const G = 100; // Fake gravitational constant
+const G = 20000; // Fake gravitational constant
 var x = [];
 var y = [];
 var vx = [];
@@ -23,12 +23,12 @@ var i;
 for(i=0;i<n;i++){
 	x[i] = Math.random()*w;
 	y[i] = Math.random()*h;
-	vx[i] = 0;//(Math.random()*4)-2;
-	vy[i] = 0;//(Math.random()*4)-2;
+	vx[i] = (Math.random()*4)-2;
+	vy[i] = (Math.random()*4)-2;
 }
 
 // Run
-setInterval(update,1); // Update at 60 fps
+setInterval(update,1000/60); // Update at 60 fps
 
 function applyForces(p){ // TODO: Calculate and apply normal and gravitational forces
 	// Calculate and apply all gravitational forces on p
@@ -41,8 +41,12 @@ function applyForces(p){ // TODO: Calculate and apply normal and gravitational f
 		var theta = Math.atan(Math.abs(dy)/Math.abs(dx));
 		vx[p] += -1*Math.sign(dx)*Fg*Math.cos(theta);
 		vy[p] += -1*Math.sign(dy)*Fg*Math.sin(theta);
-		if(Math.abs(vx[p])>Vmax){vx[p]=0;}
-		if(Math.abs(vy[p])>Vmax){vy[p]=0;} // Fake normal force
+		if(Math.abs(dx/vx[p])<=1 && Math.abs(dy/vy[p])<=1){ // Normal force
+			x[p] += Math.sign(vx[p])*Math.abs(dx/vx[p]);
+			y[p] += Math.sign(vy[p])*Math.abs(dy/vy[p]);
+			vx[p] = 0;
+			vy[p] = 0;
+		}
 	}
 }
 
