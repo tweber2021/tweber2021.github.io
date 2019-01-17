@@ -8,11 +8,10 @@ var ctx=canvas.getContext("2d");
 
 // Init. Variables
 // assumed: m=1
-const n = 500;
+const n = 2;
 const w = canvas.width;
 const h = canvas.height;
-const G = 200; // Fake gravitational constant
-const path = false;
+const G = 2; // Fake gravitational constant
 var x = [];
 var y = [];
 var vx = [];
@@ -23,18 +22,17 @@ var i;
 for(i=0;i<n;i++){
 	x[i] = Math.random()*w;
 	y[i] = Math.random()*h;
-	vx[i] = (Math.random()*20)-10; // 0 for experiments
-	vy[i] = (Math.random()*20)-10;
+	vx[i] = 0; //(Math.random()*20)-10;
+	vy[i] = 0; //(Math.random()*20)-10;
 }
 
 // Experiment
-/*
 x[0] = w/2;
 y[0] = h/2;
 x[1] = x[0];
 y[1] = y[0]+10;
 vx[0] = -0.42;
-vx[1] = 0.42;*/
+vx[1] = 0.42;
 
 // Run
 setInterval(update,1000/60); // Update at 60 fps
@@ -62,14 +60,11 @@ function applyForces(p){ // TODO: Calculate and apply normal and gravitational f
 function update(){ // Update simulation
 	var j;
 	for(j=0;j<n;j++){
-		if(!path){erase(x[j],y[j]);}
-		else{trace(x[j],y[j]);}
-		var lx = x[j];
-		var ly = y[j];
+		//erase(x[j],y[j]);
+		trace(x[j],y[j]);
 		applyForces(j);
 		x[j] += vx[j];
 		y[j] += vy[j];
-		// TODO: Trace lines
 		plot(x[j],y[j])
 	}
 }
