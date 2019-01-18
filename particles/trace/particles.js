@@ -8,12 +8,16 @@ var ctx=canvas.getContext("2d");
 
 // Init. Variables
 // assumed: m=1
-const n = 500;
+var n = getUrlParam("n",500);
+if(n==undefined){n=500;}
+console.log(n);
 const w = canvas.width;
 const h = canvas.height;
-const G = 200; // Fake gravitational constant
+var G = getUrlParam("G",200);
+if(G==undefined){G=200;}
 const path = true;
-const Vc = 20;
+var Vc = getUrlParam("Vc",20);
+if(Vc==undefined){Vc=20;}
 var x = [];
 var y = [];
 var vx = [];
@@ -94,4 +98,20 @@ function trace(x1,y1,x2,y2,v){
     ctx.lineWidth = 1;
     ctx.strokeStyle = "#0000"+blu.toString(16);
     ctx.stroke();
+}
+
+function getUrlVars() {
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = value;
+    });
+    return vars;
+}
+
+function getUrlParam(parameter, defaultvalue){
+    var urlparameter = defaultvalue;
+    if(window.location.href.indexOf(parameter) > -1){
+        urlparameter = getUrlVars()[parameter];
+        }
+    return urlparameter;
 }
