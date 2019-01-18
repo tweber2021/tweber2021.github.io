@@ -13,6 +13,7 @@ const w = canvas.width;
 const h = canvas.height;
 const G = 200; // Fake gravitational constant
 const path = true;
+const Vc = 20;
 var x = [];
 var y = [];
 var vx = [];
@@ -62,15 +63,15 @@ function applyForces(p){ // TODO: Calculate and apply normal and gravitational f
 function update(){ // Update simulation
 	var j;
 	for(j=0;j<n;j++){
-		if(!path){erase(x[j],y[j]);}
-		else{trace(x[j],y[j]);}
+		erase(x[j],y[j]);
 		var lx = x[j];
 		var ly = y[j];
 		applyForces(j);
 		x[j] += vx[j];
 		y[j] += vy[j];
-		// TODO: Trace lines
-		plot(x[j],y[j])
+		var v = Math.sqrt(Math.pow(vx[j],2)+Math.pow(vy[j],2));
+		if(path){trace(lx,ly,x[j],y[j],v);}
+		plot(x[j],y[j]);
 	}
 }
 
@@ -84,7 +85,13 @@ function erase(x,y){ // Erase a pixel
 	ctx.fillRect(Math.floor(x), Math.floor(y), 1, 1);
 }
 
-function trace(x,y){ // Trace a pixel
-	ctx.fillStyle = "blue";
-	ctx.fillRect(Math.floor(x), Math.floor(y), 1, 1);
+function trace(x1,y1,x2,y2,v){
+	var blu = Math.floor(255*(v/Vc));
+    if(blu>255){blu=255;}
+	ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x2,y2);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#0000"+blu.toString(16);
+    ctx.stroke();
 }
