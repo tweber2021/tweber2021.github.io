@@ -10,12 +10,12 @@ var ctx=canvas.getContext("2d");
 // assumed: m=1
 var n = getUrlParam("n",500);
 if(n==undefined){n=500;}
-console.log(n);
 const w = canvas.width;
 const h = canvas.height;
 var G = getUrlParam("G",200);
 if(G==undefined){G=200;}
 const path = true;
+const Fmax = 20;
 var Vc = getUrlParam("Vc",20);
 if(Vc==undefined){Vc=20;}
 var x = [];
@@ -44,7 +44,7 @@ vx[1] = 0.42;*/
 // Run
 setInterval(update,1000/60); // Update at 60 fps
 
-function applyForces(p){ // TODO: Calculate and apply normal and gravitational forces
+function applyForces(p){
 	// Calculate and apply all gravitational forces on p
 	for(i=0;i<n;i++){
 		if(i===p){continue;}
@@ -52,10 +52,11 @@ function applyForces(p){ // TODO: Calculate and apply normal and gravitational f
 		var dy = y[p]-y[i];
 		var d = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
 		var Fg = G/Math.pow(d,2);
+		if(Fg>Fmax){Fg=Fmax;}
 		var theta = Math.atan(Math.abs(dy)/Math.abs(dx));
 		vx[p] += -1*Math.sign(dx)*Fg*Math.cos(theta); // Apply gravitational force
 		vy[p] += -1*Math.sign(dy)*Fg*Math.sin(theta);
-		if(Math.abs(dx/vx[p])<=1 && Math.abs(dy/vy[p])<=1){ // Apply normal force
+		if(Math.abs(dx/vx[p])<=1 && Math.abs(dy/vy[p])<=1){ // Apply normal force TODO: Fix weird interactions
 			x[p] += Math.sign(vx[p])*Math.abs(dx/vx[p]);
 			y[p] += Math.sign(vy[p])*Math.abs(dy/vy[p]);
 			vx[p] = 0;
