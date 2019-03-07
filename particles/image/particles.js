@@ -17,7 +17,6 @@ if(G==undefined){G=120;}
 var Ga = getUrlParam("Ga",1);
 if(Ga==undefined){Ga=1;}
 const path = true;
-const Fmax = 20;
 var Vc = getUrlParam("Vc",10);
 if(Vc==undefined){Vc=10;}
 var P = getUrlParam("P",0);
@@ -30,6 +29,7 @@ var vx = [];
 var vy = [];
 var tx = [];
 var ty = [];
+var frozen = [];
 var color = [];
 
 // Init. particles
@@ -46,7 +46,7 @@ loadImgData(function(pixArr){
 			vx[pos] = (Math.random()-0.5)*Rv;
 			vy[pos] = (Math.random()-0.5)*Rv;
 			color[pos] = pixArr[i][j];
-			console.log(color[pos]);
+			frozen[pos] = false;
 			pos++;
 		}
 	}
@@ -61,20 +61,20 @@ function applyForces(p){
 	var dx = x[p]-tx[p];
 	var dy = y[p]-ty[p];
 	var d = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
-	if(d<10){ // Snap particle to grid
+	if(Math.abs(dx)<Math.abs(vx[p])||Math.abs(dy)<Math.abs(vy[p])||d>10000){ // Snap particle to grid
 		x[p] = tx[p];
 		y[p] = ty[p];
 		vx[p] = 0;
 		vy[p] = 0;
+		frozen[p] = true;
 		return;
 	}
 	var Fg = (G+(time*Ga))/Math.pow(d,2);
-	//if(Fg>Fmax){Fg=Fmax;}
 	var theta = Math.atan(Math.abs(dy)/Math.abs(dx));
 	vx[p] += -1*Math.sign(dx)*Fg*Math.cos(theta); // Apply gravitational force
 	vy[p] += -1*Math.sign(dy)*Fg*Math.sin(theta);
-	if(Math.abs(vx[p])>10){vx[p]=Math.sign(vx[p])*10;} // Speed limit
-	if(Math.abs(vy[p])>10){vy[p]=Math.sign(vy[p])*10;}
+	//if(Math.abs(vx[p])>10){vx[p]=Math.sign(vx[p])*10;} // Speed limit
+	//if(Math.abs(vy[p])>10){vy[p]=Math.sign(vy[p])*10;}
 }
 
 function update(){ // Update simulation
@@ -83,11 +83,13 @@ function update(){ // Update simulation
 		if(P!=2){erase(x[j],y[j]);}
 		var lx = x[j];
 		var ly = y[j];
-		applyForces(j);
+		if(!frozen[j]){
 		x[j] += vx[j];
 		y[j] += vy[j];
+		applyForces(j);
 		var v = Math.sqrt(Math.pow(vx[j],2)+Math.pow(vy[j],2));
 		if(P>0){trace(lx,ly,x[j],y[j],v);}
+		}
 		if(P!=2){plot(x[j],y[j],color[j]);}
 	}
 	time+=1;
@@ -154,7 +156,6 @@ function loadImgData(callback){
         can2.height = img.height;
         ctx2.drawImage(img,0,0);
         dat = ctx2.getImageData(0,0,can2.width,can2.height).data;
-        console.log(dat);
         var a;
         var b;
         for(a=0;a<can2.width;a++){
