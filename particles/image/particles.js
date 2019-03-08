@@ -52,7 +52,7 @@ switch(If){
 	case 0: ImgF = "willsmith.png"; break;
 	case 1: ImgF = "sans.png"; break;
 	case 2: ImgF = "ness.png"; break;
-	case 3: ImgI = "ninja.png";
+	case 3: ImgF = "ninja.png";
 }
 
 loadImgData(function(pixArr){
