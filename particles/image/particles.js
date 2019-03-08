@@ -12,9 +12,9 @@ var l = 100;
 var n = l*l;
 const w = canvas.width;
 const h = canvas.height;
-var G = getUrlParam("G",120);
+var G = parseInt(getUrlParam("G",120));
 if(G==undefined){G=120;}
-var Ga = getUrlParam("Ga",1);
+var Ga = parseInt(getUrlParam("Ga",1));
 if(Ga==undefined){Ga=1;}
 const path = true;
 var Vc = getUrlParam("Vc",10);
@@ -29,6 +29,7 @@ var vx = [];
 var vy = [];
 var tx = [];
 var ty = [];
+// TODO: tx2/ty2 for after unfreeze
 var frozen = [];
 var color = [];
 
@@ -50,49 +51,85 @@ loadImgData(function(pixArr){
 			pos++;
 		}
 	}
-});
+},"sans.png");
+loadImgData(function(pixArr){
+	var i;
+	var j;
+	var k;
+	var reserved = createArray(100,2);
+	//var pos = 0;
+	var distRec = 450;
+	var sel = {x:-1, y:-1};
+	for(i=0;i<n;i++){
+		distRec = 450;
+		for(j=0;j<l;j++){
+			for(k=0;k<l;k++){
+				colDist = Math.sqrt(Math.pow(color[i].r-pixArr[j][k].r,2)+Math.pow(color[i].g-pixArr[j][k].g,2)+Math.pow(color[i].b-pixArr[j][k].b,2));
+				if(colDist<distRec&&!reserved[j][k]){
+					distRec=colDist;
+					sel = {x:j,y:k};
+				}
+				//pos++;
+			}
+		}
+		reserved[sel.x][sel.y] = true;
+		console.log("dR: "+distRec);
+	}
+},"ness.png");
 
 // Run
 var time = 0;
+var freezeCount = 0;
 setInterval(update,1000/60); // Update at 60 fps
 
 function applyForces(p){
 	// Attract p to its destination position
 	var dx = x[p]-tx[p];
 	var dy = y[p]-ty[p];
+	if(time%60==0&&p==0){console.log("x[0]: "+x[0]);}
 	var d = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
-	if(Math.abs(dx)<Math.abs(vx[p])||Math.abs(dy)<Math.abs(vy[p])||d>10000){ // Snap particle to grid
+	if(Math.abs(dx)<Math.abs(vx[p])||Math.abs(dy)<Math.abs(vy[p])&&G>0){ // Snap particle to grid
 		x[p] = tx[p];
 		y[p] = ty[p];
 		vx[p] = 0;
 		vy[p] = 0;
 		frozen[p] = true;
+		freezeCount++;
+		if(freezeCount==10000){
+			console.log("boom");
+			for(i=0;i<n;i++){
+				frozen[i]=false;
+				x[i] = Math.random()*w;
+				y[i] = Math.random()*h;
+			}
+			freezeCount = 0;
+			cls();
+		}
 		return;
 	}
-	var Fg = (G+(time*Ga))/Math.pow(d,2);
+	var Fg = G/Math.pow(d,2);
 	var theta = Math.atan(Math.abs(dy)/Math.abs(dx));
 	vx[p] += -1*Math.sign(dx)*Fg*Math.cos(theta); // Apply gravitational force
 	vy[p] += -1*Math.sign(dy)*Fg*Math.sin(theta);
-	//if(Math.abs(vx[p])>10){vx[p]=Math.sign(vx[p])*10;} // Speed limit
-	//if(Math.abs(vy[p])>10){vy[p]=Math.sign(vy[p])*10;}
 }
 
 function update(){ // Update simulation
 	var j;
 	for(j=0;j<n;j++){
-		if(P!=2){erase(x[j],y[j]);}
+		if(P!=2&&!frozen[j]){erase(x[j],y[j]);}
 		var lx = x[j];
 		var ly = y[j];
 		if(!frozen[j]){
-		x[j] += vx[j];
-		y[j] += vy[j];
-		applyForces(j);
-		var v = Math.sqrt(Math.pow(vx[j],2)+Math.pow(vy[j],2));
-		if(P>0){trace(lx,ly,x[j],y[j],v);}
+			x[j] += vx[j];
+			y[j] += vy[j];
+			applyForces(j);
+			var v = Math.sqrt(Math.pow(vx[j],2)+Math.pow(vy[j],2));
+			if(P>0){trace(lx,ly,x[j],y[j],v);}
 		}
 		if(P!=2){plot(x[j],y[j],color[j]);}
 	}
 	time+=1;
+	G+=Ga;
 }
 
 function plot(x,y,color){ // Fill in a pixel
@@ -103,6 +140,11 @@ function plot(x,y,color){ // Fill in a pixel
 function erase(x,y){ // Erase a pixel
 	ctx.fillStyle = "black";
 	ctx.fillRect(Math.floor(x), Math.floor(y), 1, 1);
+}
+
+function cls(){ // Clear the screen
+	ctx.fillStyle = "black";
+	ctx.fillRect(0, 0, w, h);
 }
 
 function trace(x1,y1,x2,y2,v){
@@ -144,7 +186,7 @@ function createArray(length) {
     return arr;
 }
 
-function loadImgData(callback){
+function loadImgData(callback,filename){
     var pixArr = createArray(100,2);
     var can2 = document.createElement('canvas');
     var ctx2 = can2.getContext('2d');
@@ -166,5 +208,5 @@ function loadImgData(callback){
         }
         callback(pixArr);
     };
-    img.src = "willsmith.png";
+    img.src = filename;//"willsmith.png";
 }
