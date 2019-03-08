@@ -23,17 +23,38 @@ var P = getUrlParam("P",0);
 if(P==undefined){Pe=0;}
 var Rv = getUrlParam("Rv",1);
 if(Rv==undefined){Rv=1;}
+var Ii = parseInt(getUrlParam("Ii",0));
+if(Ii==undefined){Ii=0;}
+var If = parseInt(getUrlParam("If",1));
+if(If==undefined){If=1;}
 var x = [];
 var y = [];
 var vx = [];
 var vy = [];
 var tx = [];
 var ty = [];
-// TODO: tx2/ty2 for after unfreeze
+var tx2 = [];
+var ty2 = [];
 var frozen = [];
 var color = [];
+var stage = 0;
 
 // Init. particles
+var ImgI = "";
+var ImgF = "";
+switch(Ii){
+	case 0: ImgI = "willsmith.png"; break;
+	case 1: ImgI = "sans.png"; break;
+	case 2: ImgI = "ness.png"; break;
+	case 3: ImgI = "ninja.png";
+}
+switch(If){
+	case 0: ImgF = "willsmith.png"; break;
+	case 1: ImgF = "sans.png"; break;
+	case 2: ImgF = "ness.png"; break;
+	case 3: ImgI = "ninja.png";
+}
+
 loadImgData(function(pixArr){
 	var i;
 	var j;
@@ -51,7 +72,7 @@ loadImgData(function(pixArr){
 			pos++;
 		}
 	}
-},"sans.png");
+},ImgI);
 loadImgData(function(pixArr){
 	var i;
 	var j;
@@ -73,9 +94,11 @@ loadImgData(function(pixArr){
 			}
 		}
 		reserved[sel.x][sel.y] = true;
-		console.log("dR: "+distRec);
+		tx2[i] = sel.x+(w/2)-(l/2);
+		ty2[i] = sel.y+(h/2)-(l/2);
+		if(distRec>0){/*console.log("dR: "+distRec);*/console.log("x");}
 	}
-},"ness.png");
+},ImgF);
 
 // Run
 var time = 0;
@@ -95,13 +118,16 @@ function applyForces(p){
 		vy[p] = 0;
 		frozen[p] = true;
 		freezeCount++;
-		if(freezeCount==10000){
+		if(freezeCount==10000&&stage==0){
 			console.log("boom");
 			for(i=0;i<n;i++){
 				frozen[i]=false;
-				x[i] = Math.random()*w;
-				y[i] = Math.random()*h;
+				x[i] = tx[i];//Math.random()*w;
+				y[i] = ty[i];//Math.random()*h;
+				tx[i] = tx2[i];
+				ty[i] = ty2[i];
 			}
+			stage++;
 			freezeCount = 0;
 			cls();
 		}
